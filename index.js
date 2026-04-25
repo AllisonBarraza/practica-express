@@ -39,6 +39,31 @@ app.get('/alumnos', async (req, res) => {
   }
 });
 
+app.get('/usuarios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validación
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'El id debe ser numérico' });
+    }
+
+    const resultado = await pool.query(
+    "SELECT * FROM alumno WHERE id = $1",
+    [id]
+     );
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    console.error('Error al consultar usuario:', error);
+    res.status(500).json({ error: 'Error al obtener el usuario' });
+  }
+});
+
 app.post('/alumnos', async (req, res) => {
   try {
     const { nombre, apellido, edad, correo } = req.body;
@@ -69,6 +94,31 @@ app.get('/materias', async (req, res) => {
   } catch (error) {
     console.error('Error al consultar materias:', error);
     res.status(500).json({ error: 'Error al obtener las materias' });
+  }
+});
+
+app.get('/materias/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validación
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'El id debe ser numérico' });
+    }
+
+    const resultado = await pool.query(
+      'SELECT * FROM materia WHERE id = $1',
+      [id]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: 'Materia no encontrada' });
+    }
+
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    console.error('Error al consultar materia:', error);
+    res.status(500).json({ error: 'Error al obtener la materia' });
   }
 });
 
