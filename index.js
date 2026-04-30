@@ -1,7 +1,12 @@
 const express = require('express');
 const pool = require('./db');
 const app = express();
+const connectMongoDB = require("./mongoConnection");
+const Vehiculo = require("./Vehiculo");
+
 app.use(express.json());
+
+connectMongoDB();
 
 app.get('/', (req, res) => {
   res.send('API funcionando');
@@ -143,4 +148,26 @@ app.post('/materias', async (req, res) => {
     console.error('Error al insertar materia:', error);
     res.status(500).json({ error: 'Error al insertar la materia' });
   }
+});
+
+app.get("/api/getVehiculos", async (req, res) => {
+  try {
+    const vehiculos = await Vehiculo.find();
+    res.json(vehiculos);
+  } catch (error) {
+    res.status(500).json({ error: "Error al consultar" });
+  }
+});
+
+app.post("/api/createVehiculo", async (req, res) => {
+  const { marca, modelo, anio, color } = req.body;
+
+  if (!marca || !modelo || !anio || !color) {
+    return res.status(400).json({ error: "Faltan datos" });
+  }
+
+  const nuevo = new Vehiculo({ marca, modelo, anio, color });
+  await nuevo.save();
+
+  res.json(nuevo);
 });
